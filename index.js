@@ -1,9 +1,10 @@
 const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
+const jwt = require('jsonwebtoken');
 const app = express()
 require('dotenv').config()
-const port = 3000
+const port =process.env.PORT || 5000
 
 
 // middleware
