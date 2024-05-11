@@ -9,11 +9,42 @@ const port =process.env.PORT || 5000
 
 
 // middleware
-app.use(cors())
+app.use(cors(
+  {
+    origin: ["http://localhost:5173"],
+    credentials: true,
+
+  }
+))
 app.use(express.json())
 app.use(cookieParser())
 
+// cookieOption
+const cookieOption ={
+  httpOnly: true,
+      secure: process.env.NODE_ENV === "production" ? true:false,
+      sameSite: process.env.NODE_ENV === "production" ? "none": "strict"
+}
 
+///verofy tocken 
+const verifyToken = async (req,res,next) =>{
+  const token = req.cookies?.token;
+  // console.log("This is my token", token)
+  if(!token){
+    return res.status(401).send({meassage: "not Authrich"})
+  }
+
+  jwt.verify(token,process.env.ACCESS_TOCKEN ,(err,decoded) =>{
+   if(err){
+    return res.status(401).send({meassage: "not Authrich"})
+   }
+
+   req.user = decoded;
+   next()
+  })
+ 
+}
+// verifyToken
 
 app.get('/', (req, res) => {
   res.send('server is ranning....')
@@ -35,9 +66,23 @@ async function run() {
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
 
-    app.get('/all',(req,res)=>{
-      res.send("mongodb is working")
-    })
+    // auth apiz
+    // auth apiz
+  app.post('/jwt',async(req,res)=>{
+    const user = req.body;
+    const token = jwt.sign(user,process.env.SECRET_TOKEN,{expiresIn:"20d"});
+    res.cookie("token",token,cookieOption).send({success : true})
+  })
+
+  // logOut user and delete cookie
+  app.post('/logOut',async(req,res)=>{
+      const user = req.body;
+      
+      console.log(user)
+      res.clearCookie("token",{...cookieOption,maxAge:0}).send({success:true})
+  })
+
+
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
