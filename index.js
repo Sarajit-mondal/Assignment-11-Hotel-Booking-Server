@@ -66,6 +66,9 @@ async function run() {
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
 
+    const database = client.db("HotelData");
+    const dbAllRoomCollection = database.collection("AllRooms");
+
     // auth apiz
     // auth apiz
   app.post('/jwt',async(req,res)=>{
@@ -80,6 +83,14 @@ async function run() {
       
       console.log(user)
       res.clearCookie("token",{...cookieOption,maxAge:0}).send({success:true})
+  })
+  // logout user 
+
+  // get all rooms
+  app.get('/allRoom',async(req,res) =>{
+     const result =await dbAllRoomCollection.find().toArray()
+     console.log(result)
+     res.send(result)
   })
 
 
