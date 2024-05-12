@@ -1,5 +1,5 @@
 const express = require('express')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const jwt = require('jsonwebtoken');
@@ -80,8 +80,6 @@ async function run() {
   // logOut user and delete cookie
   app.post('/logOut',async(req,res)=>{
       const user = req.body;
-      
-      console.log(user)
       res.clearCookie("token",{...cookieOption,maxAge:0}).send({success:true})
   })
   // logout user 
@@ -89,8 +87,24 @@ async function run() {
   // get all rooms
   app.get('/allRoom',async(req,res) =>{
      const result =await dbAllRoomCollection.find().toArray()
-     console.log(result)
+
      res.send(result)
+  })
+
+  // sort by price range 
+  app.get('/allRoom/sort',async(req,res)=>{
+    const rangeOne = parseInt(req.query.rangeOne)
+    const rangeTwo = parseInt(req.query.rangeTwo)
+    const result = await dbAllRoomCollection.find({PricePerNight :{$gte:rangeOne, $lte:rangeTwo}}).sort({PricePerNight : 1}).toArray()
+    console.log(result)
+    res.send(result)
+  })
+  //get one data useing id
+  app.get('/allRoom/:id',async(req,res)=>{
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)}
+  const result =await dbAllRoomCollection.findOne(query)
+  res.send(result)
   })
 
 
