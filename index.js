@@ -68,6 +68,7 @@ async function run() {
 
     const database = client.db("HotelData");
     const dbAllRoomCollection = database.collection("AllRooms");
+    const dbBookingCollection = database.collection("Booking");
 
     // auth apiz
     // auth apiz
@@ -107,6 +108,47 @@ async function run() {
   res.send(result)
   })
 
+  // unavailable  room after booking this room
+  // unavailable  room after booking this room
+  app.patch('/allRoomUpdate/:id',async(req,res)=>{
+    const update = req.body;
+    const id = req.params.id;
+    const query = {_id :  new ObjectId(id)}
+
+    const updateDoc = {
+      $set :{
+        Availability : update.update
+      }
+    }
+
+    const result = await dbAllRoomCollection.updateOne(query,updateDoc)
+
+    res.send(result)
+  })
+
+  /// set booking room 
+  /// set booking room 
+  /// set booking room 
+  app.post('/bookingRoom',async(req,res)=>{
+    const booking = req.body;
+    const doc = {
+      RoomNo: booking.RoomNo,
+      allRoomId : booking.allRoomId,
+      roomImage: booking.roomImage,
+      roomSize: booking.roomSize,
+      checkIn:booking.checkIn,
+      checkOut: booking.checkOut,
+      totalCost : booking.totalCost
+    }
+    const result = await dbBookingCollection.insertOne(booking)
+    res.send(result)
+  })
+
+  // get all booking data
+  app.get('/allBooking',async(req,res)=>{
+    const result = await dbBookingCollection.find().toArray()
+    res.send(result)
+  })
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
