@@ -1,5 +1,5 @@
 const express = require('express')
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId, ClientSession } = require('mongodb');
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const jwt = require('jsonwebtoken');
@@ -144,6 +144,24 @@ async function run() {
    
    
   })
+  // update Availability
+  app.patch('/allRoomUpdateAvailability/:id',async(req,res)=>{
+    const update = req.body;
+    const id = req.params.id;
+    const query = {_id :  new ObjectId(id)}
+
+    const updateDoc = {
+      $set :{
+        Availability : update.update
+      }
+    }
+
+    const result = await dbAllRoomCollection.updateOne(query,updateDoc)
+
+    res.send(result)
+   
+   
+  })
 
   /// set booking room 
   /// set booking room 
@@ -175,8 +193,16 @@ async function run() {
       const result = await dbBookingCollection.updateOne(query,updateDoc)
   
       res.send(result)
-   
-     
+    
+    })
+
+    // booking delete
+    app.delete('/bookingDelete/:id',async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)}
+     const result = await dbBookingCollection.deleteOne(query)
+     res.send(result)
+    
     })
 
   ///set reviews database
