@@ -159,6 +159,25 @@ async function run() {
     const result = await dbBookingCollection.find().toArray()
     res.send(result)
   })
+    //  booking data update
+    app.patch('/bookingUpdate/:id',async(req,res)=>{
+      const update = req.body;
+      const id = req.params.id;
+      const query = {_id :  new ObjectId(id)}
+  
+      const updateDoc = {
+        $set :{
+            checkIn : update.checkIn,
+            checkOut:update.checkOut
+        }
+      }
+  
+      const result = await dbBookingCollection.updateOne(query,updateDoc)
+  
+      res.send(result)
+   
+     
+    })
 
   ///set reviews database
   app.post('/rating',async(req,res) =>{
@@ -166,6 +185,7 @@ async function run() {
     const result =await dbRatingCollection.insertOne(rating)
     res.send(result)
   })
+
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
