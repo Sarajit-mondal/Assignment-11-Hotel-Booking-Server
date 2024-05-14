@@ -88,7 +88,8 @@ async function run() {
 
   // get all rooms
   app.get('/allRoom',async(req,res) =>{
-     const result =await dbAllRoomCollection.find().toArray()
+     const query = {Availability : "available"}
+     const result =await dbAllRoomCollection.find(query).toArray()
 
      res.send(result)
   })
@@ -98,7 +99,6 @@ async function run() {
     const rangeOne = parseInt(req.query.rangeOne)
     const rangeTwo = parseInt(req.query.rangeTwo)
     const result = await dbAllRoomCollection.find({PricePerNight :{$gte:rangeOne, $lte:rangeTwo}}).sort({PricePerNight : 1}).toArray()
-    console.log(result)
     res.send(result)
   })
   //get one data useing id
@@ -209,6 +209,16 @@ async function run() {
   app.post('/rating',async(req,res) =>{
    const rating = req.body;
     const result =await dbRatingCollection.insertOne(rating)
+    res.send(result)
+  })
+  //get all reviews 
+  app.get('/allReview',async(req,res)=>{
+    const result = await dbRatingCollection.find().toArray();
+    res.send(result)
+  })
+  app.get('/allReview/sort',async(req,res)=>{
+    const result = await dbRatingCollection.find().sort({
+      timeStamp : -1}).toArray();
     res.send(result)
   })
 
