@@ -69,6 +69,7 @@ async function run() {
     const database = client.db("HotelData");
     const dbAllRoomCollection = database.collection("AllRooms");
     const dbBookingCollection = database.collection("Booking");
+    const dbRatingCollection = database.collection("Rating");
 
     // auth apiz
     // auth apiz
@@ -125,21 +126,30 @@ async function run() {
 
     res.send(result)
   })
+  // review update this room
+  app.patch('/allRoomUpdateRewiew/:id',async(req,res)=>{
+    const update = req.body;
+    const id = req.params.id;
+    const query = {_id :  new ObjectId(id)}
+
+    const updateDoc = {
+      $set :{
+          TotalReviews : update.update
+      }
+    }
+
+    const result = await dbAllRoomCollection.updateOne(query,updateDoc)
+
+    res.send(result)
+   
+   
+  })
 
   /// set booking room 
   /// set booking room 
   /// set booking room 
   app.post('/bookingRoom',async(req,res)=>{
     const booking = req.body;
-    const doc = {
-      RoomNo: booking.RoomNo,
-      allRoomId : booking.allRoomId,
-      roomImage: booking.roomImage,
-      roomSize: booking.roomSize,
-      checkIn:booking.checkIn,
-      checkOut: booking.checkOut,
-      totalCost : booking.totalCost
-    }
     const result = await dbBookingCollection.insertOne(booking)
     res.send(result)
   })
@@ -147,6 +157,13 @@ async function run() {
   // get all booking data
   app.get('/allBooking',async(req,res)=>{
     const result = await dbBookingCollection.find().toArray()
+    res.send(result)
+  })
+
+  ///set reviews database
+  app.post('/rating',async(req,res) =>{
+   const rating = req.body;
+    const result =await dbRatingCollection.insertOne(rating)
     res.send(result)
   })
 
