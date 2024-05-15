@@ -173,8 +173,16 @@ async function run() {
   })
 
   // get all booking data
-  app.get('/allBooking',async(req,res)=>{
-    const result = await dbBookingCollection.find().toArray()
+  app.get('/allBooking/:email',verifyToken, async(req,res)=>{
+    const currentEmail = req.params.email;
+    if(req.user.email !== currentEmail){
+      return res.status(403).send({message: "forbidden token"})
+    }
+    let query ={}
+    if(req.params?.email){
+      query = {userEmail : currentEmail}
+    }
+    const result = await dbBookingCollection.find(query).toArray()
     res.send(result)
   })
     //  booking data update
