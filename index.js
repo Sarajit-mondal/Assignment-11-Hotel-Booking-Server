@@ -11,7 +11,7 @@ const port =process.env.PORT || 5000
 // middleware
 app.use(cors(
   {
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5173","http://localhost:5174","https://hotel-booking-c0e42.firebaseapp.com/","https://hotel-booking-c0e42.web.app/"],
     credentials: true,
 
   }
@@ -30,9 +30,10 @@ const cookieOption ={
 const verifyToken = async (req,res,next) =>{
   const token = req.cookies?.token;
   // console.log("This is my token", token)
-  if(!token){
-    return res.status(401).send({meassage: "not Authrich"})
-  }
+  console.log(token)
+  // if(!token){
+  //   return res.status(401).send({meassage: "not Authrich"})
+  // }
 
   jwt.verify(token,process.env.ACCESS_TOCKEN ,(err,decoded) =>{
    if(err){
@@ -173,11 +174,12 @@ async function run() {
   })
 
   // get all booking data
-  app.get('/allBooking/:email',verifyToken, async(req,res)=>{
+  app.get('/allBooking/:email', async(req,res)=>{
     const currentEmail = req.params.email;
-    if(req.user.email !== currentEmail){
-      return res.status(403).send({message: "forbidden token"})
-    }
+    // if(req.user.email !== currentEmail){
+    //   return res.status(403).send({message: "forbidden"})
+    // }
+    // console.log("woner email",req.user.email)
     let query ={}
     if(req.params?.email){
       query = {userEmail : currentEmail}
