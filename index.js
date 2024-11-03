@@ -11,7 +11,11 @@ const port =process.env.PORT || 5000
 // middleware
 app.use(cors(
   {
-    origin: ["http://localhost:5173","http://localhost:5174","https://hotel-booking-c0e42.firebaseapp.com/","https://hotel-booking-c0e42.web.app/"],
+    origin: [
+      "http://localhost:5173","http://localhost:5174",
+      "https://hotel-booking-c0e42.firebaseapp.com",
+      "https://hotel-booking-c0e42.web.app"
+    ],
     credentials: true,
 
   }
@@ -30,11 +34,11 @@ const cookieOption ={
 const verifyToken = async (req,res,next) =>{
   const token = req.cookies?.token;
   // console.log("This is my token", token)
+  
+  if(!token){
+    return res.status(401).send({meassage: "not Authrich"})
+  }
   console.log(token)
-  // if(!token){
-  //   return res.status(401).send({meassage: "not Authrich"})
-  // }
-
   jwt.verify(token,process.env.ACCESS_TOCKEN ,(err,decoded) =>{
    if(err){
     return res.status(401).send({meassage: "not Authrich"})
@@ -55,7 +59,7 @@ app.get('/', (req, res) => {
 // mongodb database 
 
 
-const uri =`mongodb+srv://${process.env.ADMIN_NAME}:${process.env.PASSWORD}@hotel-booking.a2yhjhv.mongodb.net/?retryWrites=true&w=majority&appName=Hotel-Booking` ;
+const uri =`mongodb+srv://${process.env.ADMIN_NAME}:${process.env.PASSWORD}@cluster0.llbbd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0` ;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri);
@@ -71,20 +75,22 @@ async function run() {
     const dbAllRoomCollection = database.collection("AllRooms");
     const dbBookingCollection = database.collection("Booking");
     const dbRatingCollection = database.collection("Rating");
+    const dbBestMomentCollection = database.collection("BestMoment");
 
     // auth apiz
     // auth apiz
   app.post('/jwt',async(req,res)=>{
-    const user = req.body;
-    const token = jwt.sign(user,process.env.SECRET_TOKEN,{expiresIn:"20d"});
-    res.cookie("token",token,cookieOption).send({success : true})
+    // const user = req.body;
+    // console.log(user)
+    // const token = jwt.sign(user,process.env.SECRET_TOKEN,{expiresIn: '1h'});
+    // res.send({token})
   })
 
   // logOut user and delete cookie
-  app.post('/logOut',async(req,res)=>{
-      const user = req.body;
-      res.clearCookie("token",{...cookieOption,maxAge:0}).send({success:true})
-  })
+  // app.post('/logOut',async(req,res)=>{
+  //     const user = req.body;
+  //     res.clearCookie("token",{...cookieOption,maxAge:0}).send({success:true})
+  // })
   // logout user 
 
   // get all rooms
@@ -179,7 +185,8 @@ async function run() {
     // if(req.user.email !== currentEmail){
     //   return res.status(403).send({message: "forbidden"})
     // }
-    // console.log("woner email",req.user.email)
+      // console.log("woner email",req.user.email)
+      // console.log("current email",currentEmail)
     let query ={}
     if(req.params?.email){
       query = {userEmail : currentEmail}
@@ -232,6 +239,23 @@ async function run() {
     res.send(result)
   })
 
+  //best moment set data
+  app.post('/bestMoment',async(req,res)=>{
+    const bestmoment = req.body;
+    const result = dbBestMomentCollection.insertOne(bestmoment)
+    res.send(result)
+  })
+
+  // best moment all data get
+  app.get('/bestMoment',async(req,res)=>{
+    const result = await dbBestMomentCollection.find().toArray()
+    res.send(result)
+  })
+  app.get('/bestMoment/sort',async(req,res)=>{
+    const result = await dbBestMomentCollection.find().sort({
+      timeStamp : -1}).toArray();
+    res.send(result)
+  })
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
